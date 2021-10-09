@@ -4,26 +4,23 @@
 int
 main()
 {
-  int n, pid, status;
   int fds[2];
-  char buf[1];
+  char buf[128];
   pipe(fds);
-  pid = fork();
-  if (pid == 0) {
-    n = read(fds[0], buf, sizeof(buf));
-    if (n > 0) {
-        printf("%d: received ping\n", buf[0]);
-        buf[0] = pid;
-        write(fds[1], buf, 1);
-        exit(0);
-    }
-    exit(1);
-  } else {
-    buf[0] = pid;
-    write(fds[1], buf ,1);
-    wait(&status);
+  if (!fork()) {
     read(fds[0], buf, sizeof(buf));
-    printf("%d: received pong\n", getpid());
+    close(fds[0]);
+    printf("%d: received %s\n", getpid(), buf);
+    write(fds[1], "pong", sizeof(buf));
+    close(fds[1]);
+    exit(0);
+  } else {
+    write(fds[1], "ping", sizeof(buf));
+    close(fds[1]);
+    wait(0);
+    read(fds[0], buf, sizeof(buf));
+    close(fds[0]);
+    printf("%d: received %s\n", getpid(), buf);
     exit(0);
   }
 }
