@@ -204,6 +204,8 @@ UPROGS=\
 	$U/_pipe2\
 	$U/_redirect\
 	$U/_sleep\
+	$U/_pingpong\
+	$U/_find\
 
 
 
